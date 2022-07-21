@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>D3 Pie Chart</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+<h1>複数の横棒グラフ</h1>
+<div id="canvas-1"></div>
+<script>
+
+// データ
+var dataset = [
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-17","obs_fill": "36.0","obs_true": "35.2","filtered": "35.99809499821735","lower": "35.874540561526686","upper": "36.12164943490801","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-18","obs_fill": "36.0","obs_true": "","filtered": "35.99919443065645","lower": "35.87563887277824","upper": "36.122749988534665","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-19","obs_fill": "36.0","obs_true": "36.0","filtered": "35.99974904116607","lower": "35.876193336718714","upper": "36.123304745613424","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-20","obs_fill": "36.03333333333333","obs_true": "","filtered": "36.02940518662843","lower": "35.90584946679032","upper": "36.15296090646654","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-21","obs_fill": "36.06666666666667","obs_true": "37.5","filtered": "36.064392314784584","lower": "35.940836593560334","upper": "36.187948036008834","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-17","obs_fill": "300.0","obs_true": "300.0","filtered": "432.38834736749016","lower": "302.58875196813096","upper": "562.1879427668493","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-18","obs_fill": "240.0","obs_true": "240.0","filtered": "384.8171711446596","lower": "243.54187541314178","upper": "526.0924668761775","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-19","obs_fill": "350.0","obs_true": "350.0","filtered": "379.73740534081577","lower": "231.08222787506875","upper": "528.3925828065628","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-20","obs_fill": "540.0","obs_true": "540.0","filtered": "450.1210872567251","lower": "297.26643448261876","upper": "602.9757400308315","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-21","obs_fill": "410.0","obs_true": "410.0","filtered": "446.4116172467796","lower": "291.38160204020176","upper": "601.4416324533574","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-17","obs_fill": "39.0","obs_true": "39.0","filtered": "35.62871928367285","lower": "28.8132182846139","upper": "42.4442202827318","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-18","obs_fill": "22.0","obs_true": "22.0","filtered": "31.925243047408742","lower": "24.62242073412107","upper": "39.22806536069641","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-19","obs_fill": "37.0","obs_true": "37.0","filtered": "34.146412430510985","lower": "26.528149334446482","upper": "41.76467552657549","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-20","obs_fill": "33.0","obs_true": "33.0","filtered": "34.211013706252615","lower": "26.406443125718116","upper": "42.01558428678712","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-21","obs_fill": "21.0","obs_true": "21.0","filtered": "29.309417172428187","lower": "21.402225005560798","upper": "37.21660933929557","comment": ""},
+];
+
+let featureData = {
+  "feature": ["column1", "column2", "column3"],
+//   "color": {"column1": "#5BFF7F", "column2": "#64F9C1", "column3": "#D6FF58"},
+  "color": {"column1": "#F9C200", "column2": "#F31212", "column3": "#12A0B4"
+            // "???": "#F9C200"
+            // https://small-road.com/colorcode-vivid/
+    },
+}
+
+processedData = processData(dataset);
+
+// パディング
+const canvas_padding = { top: 12.5, right: 20, bottom: 10, left: 80 };
+const graph_padding = { top: 5, left: 60 };
+const text_padding = { top: 12.5, right: 40 };
+const header_padding = {top: 30};
+
+
+var width = 1000; // SVG 領域の横幅
+var height = 1000; // SVG 領域の縦幅
+
+// 棒グラフの横の基準
+var barAreaWidth = 90;
+var textAreaWidth = 50;
+
+// グラフの描画
+doDrawing(processedData, featureData); 
+
+// データの前処理
+function processData(dataset) {
+  let objectData = {
+    "column3": [], 
+    "column2": [],  
+    "column1": [], 
+    "日付": [], 
+  };
+  let date_list = [];
+  for (let i = 0; i < dataset.length; i++) {
+    feat = dataset[i].feature;
+    objectData[feat].push({
+      "YYYYMMDD": dataset[i].YYYYMMDD,
+      "feature": dataset[i].feature,
+      "obs_fill": dataset[i].obs_fill,
+      "obs_true": dataset[i].obs_true,
+      "filtered": dataset[i].filtered,
+      "lower": dataset[i].lower,
+      "upper": dataset[i].upper,
+    })
+    date_list.push(dataset[i].YYYYMMDD)
+  }
+  // 日付の重複削除
+  date_list = Array.from(new Set(date_list));
+  // 日付も辞書形式で持つ（リスト形式だと後続のBBOX属性取得するところでエラー）  
+  for (let i = 0; i < date_list.length; i++) {
+    objectData["日付"].push({
+      "YYYYMMDD": date_list[i],
+    })
+  }
+  return objectData;
+};
+
+function doDrawing(data, featureData) {
+  
+  // SVGの設定
+  var svg = d3.select("#canvas-1")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .selectAll("svg")
+  
+  // featureの数だけ棒グラフを描画
+  for (let num=0; num < featureData["feature"].length; num++) {
+    featureName = featureData["feature"][num];
+    featureColor = featureData["color"];
+    
+    // 最初だけ日付列を描画
+    if (num===0) {
+      make_date_table(svg, data["日付"], textAreaWidth, x_pos=0);
+    }
+    
+    x_pos = (barAreaWidth + graph_padding.left) * (num+1) // featureの数だけ描画位置を横にずらす
+    make_bar_chart(num, svg, data[featureName], barAreaWidth, featureName, featureColor, x_pos=x_pos);
+  }
+};
+
+/** 
+ * 日付列を作成
+ * @param 
+ */
+function make_date_table(svg, dataset, areaWidth) {
+  const rows = svg.data(dataset)
+    .enter()
+    .append('g')
+    .attr('class', 'rows')
+  
+  // ヘッダーの表示
+  display_header(svg=rows, areaWidth=areaWidth, headerName="日付") 
+
+  // 値テキストの表示
+  rows.append("text")
+    .text(d => d.YYYYMMDD)
+    .attr("x", 0) // X 座標は 0。これは SVG 上での座標
+    .attr("y", (d, i) => (18 + graph_padding.top) * i + text_padding.top + header_padding.top) // Y 座標を配列の順序に応じて計算
+};
+
+/** 
+ * 棒グラフを作成
+ * @param 
+ */
+function make_bar_chart(num, svg, dataset, areaWidth, featureName, featureColor, x_pos) {
+  
+  const rows = svg.data(dataset)
+              .enter()
+              .append('g')
+              .attr('class', 'rows')
+              .attr('transform', function(d, i) {
+                var x_base_pos = (areaWidth + graph_padding.left) * (num+1); // featureの数だけ描画位置を横にずらす
+                var y_base_pos = (18 + graph_padding.top) * i;
+                return `translate(${x_base_pos}, ${y_base_pos})`
+              })
+  // ヘッダーの表示
+  display_header(svg=rows, areaWidth=areaWidth, headerName=featureName, x_pos)
+  
+  barWidthScale = makeBarWidthScale(dataset, areaWidth)
+
+  // 棒グラフの描画
+  rows.append("rect") // SVG での四角形を示す要素を生成
+    .attr('class', `bars ${featureName}`)
+    .attr("x", 0)
+    .attr("y", (d,i) => header_padding.top) // Y 座標を配列の順序に応じて計算
+    // .attr("width", d => (d.obs_true / max_value)*100) // 棒グラフの横幅を計算（最大値を基準に相対的な長さを計算）
+    .attr("width", d => barWidthScale(d.obs_true))
+    .attr("height", "16") // 棒グラフの高さを指定
+    .style("fill", d => makeBarColor(d))
+    .style("fill", d => makeBarColor(d))
+
+    // マウスオーバー時にハイライト
+    .on("mouseover", function() {
+      // マウスオーバーした要素のデータセットから日付情報を取得
+      var elements = d3.select(this);
+      var mouseOverDate = elements._groups[0][0].__data__.YYYYMMDD; // v5
+      // var mouseOverDate = elements[0][0].__data__.YYYYMMDD; // v3
+      // 棒グラフ(class=bars)のうち、日付が同じ要素を選択
+      d3.selectAll(".bars").filter((d, i) => d.YYYYMMDD==mouseOverDate) 
+        .classed("hover", true)
+        .style("fill", d => makeBarColor(d))
+        .style("fill-opacity", .50)
+    })
+    // マウスオーバーが外れた時に元に戻す
+    .on("mouseout", function() {
+      var elements = d3.select(this);
+      var mouseOverDate = elements._groups[0][0].__data__.YYYYMMDD; // v5
+      // var mouseOverDate = elements[0][0].__data__.YYYYMMDD; // v3
+      d3.selectAll(".bars").filter((d, i) => d.YYYYMMDD==mouseOverDate) 
+        .classed("hover", false)
+        .classed(featureName, false)
+        .style("fill", d => makeBarColor(d))
+        .style("fill-opacity", 1)
+    })
+  
+  // 値テキストの表示
+  rows.append("text") // データを設定
+    .attr('class', 'texts')
+    .text(d => d.obs_true)
+    .attr("x", -text_padding.right) // featureの数だけ描画位置を横にずらす
+    .attr("y", (d, i) => text_padding.top + header_padding.top) // データの数だけ描画位置を下にずらす
+};
+
+
+  // ヘッダーの表示
+function display_header(svg, areaWidth, headerName, x_pos) {
+  svg.append("text")
+    .text(function(d, i) {
+        if (i===0) { return headerName}
+    }).call(getBB)
+    .attr("x", headerName=="日付" ? 0 : -text_padding.right) // featureの数だけ描画位置を横にずらす
+    .attr("y", 18)
+    .style("fill", "white")
+  svg.insert("rect", "text")
+    .attr("width", areaWidth + graph_padding.left - 1)
+    .attr("height", d => d.bbox.height)
+    .attr("x",  headerName=="日付" ? 0 : -text_padding.right)
+    .style("fill", "navy");
+  
+  function getBB(selection) {
+    selection.each(function(d){d.bbox = this.getBBox();})
+  }
+};
+
+function makeBarWidthScale(dataset, areaWidth) {
+  value_list = [];
+  for (var i = 0; i < dataset.length; i++) {
+    let _obs_true = dataset[i].obs_true; 
+    
+    // 値がブランクの場合はスキップ
+    if (_obs_true=="") {
+        continue;
+    } else {
+      value_list.push(dataset[i].obs_true);
+    }
+  }
+  // 棒グラフの長さ
+  console.log(value_list)
+  console.log(dataset[0].feature, d3.min(value_list));
+  var barWidthScale = d3.scaleLinear()
+              .domain([d3.min(value_list), d3.max(value_list)])
+              // .domain([0, d3.max(value_list)])
+              .range([areaWidth/5, areaWidth])
+  
+  return barWidthScale;
+};
+
+function makeBarColor(d){
+          var returnColor;
+          if (d.feature=="column1") {
+            returnColor = featureColor["column1"];
+          } else if (d.feature=="column2") {
+            returnColor = featureColor["column2"];
+          } else if (d.feature=="column3") {
+            returnColor = featureColor["column3"];
+          }
+          return returnColor;
+};
+
+</script>
+</body>
+</html>
