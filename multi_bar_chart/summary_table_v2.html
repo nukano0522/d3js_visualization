@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>D3 Pie Chart</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+<h1>サマリ表（試作）</h1>
+<div id="canvas-1"></div>
+<script>
+
+// データ
+var dataset = [
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-17","obs_true": "35.2","lower": "35.874540561526686","upper": "36.12164943490801","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-17","obs_true": "300.0","lower": "302.58875196813096","upper": "562.1879427668493","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-17","obs_true": "39.0","lower": "28.8132182846139","upper": "42.4442202827318","comment": ""},
+  {"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-18","obs_true": "","lower": "35.87563887277824","upper": "36.122749988534665","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-18","obs_true": "240.0","lower": "243.54187541314178","upper": "526.0924668761775","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-18","obs_true": "22.0","lower": "24.62242073412107","upper": "39.22806536069641","comment": ""},
+  {"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-19","obs_true": "36.0","lower": "35.876193336718714","upper": "36.123304745613424","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-19","obs_true": "350.0","lower": "231.08222787506875","upper": "528.3925828065628","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-19","obs_true": "37.0","lower": "26.528149334446482","upper": "41.76467552657549","comment": ""},
+  {"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-20","obs_true": "","lower": "35.90584946679032","upper": "36.15296090646654","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-20","obs_true": "540.0","lower": "297.26643448261876","upper": "602.9757400308315","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-20","obs_true": "33.0","lower": "26.406443125718116","upper": "42.01558428678712","comment": ""},
+  {"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-21","obs_true": "37.5","lower": "35.940836593560334","upper": "36.187948036008834","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-21","obs_true": "410.0","lower": "291.38160204020176","upper": "601.4416324533574","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-21","obs_true": "21.0","lower": "21.402225005560798","upper": "37.21660933929557","comment": ""},
+];
+
+processedData = processData(dataset);
+
+var width = 1000; // SVG 領域の横幅
+var height = 1000; // SVG 領域の縦幅
+
+// 棒グラフの横の基準
+var barAreaWidth = 90;
+var textAreaWidth = 50;
+
+// グラフの描画
+doDrawing(processedData, featureData); 
+
+// データの前処理
+function processData(dataset) {
+  let objectData = {};
+  let date_list = [];
+  for (let i = 0; i < dataset.length; i++) {
+    yyyymmdd = dataset[i].yyyymmdd;
+    objectData[yyyymmdd].push({
+      "YYYYMMDD": dataset[i].YYYYMMDD,
+      "column1": {},
+      "column2": {},
+      "column3": {}
+    })
+    for (let i = 0; i < 3; i++) {
+      objectData[yyyymmdd]["column1"].push({
+        "obs_true": dataset[i].obs_true,
+        "obs_true": dataset[i].obs_true,
+      })
+    
+  }
+</script>
+</body>
+</html>

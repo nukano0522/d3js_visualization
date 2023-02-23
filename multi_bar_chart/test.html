@@ -1,0 +1,41 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>D3 Pie Chart</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+
+<body>
+<div id="canvas-1"></div>
+
+<script>
+    
+    var testdata = [
+        {"name": "A", "value": 10},
+        {"name": "B", "value": 20},
+        {"name": "C", "value": 30},
+        {"name": "D", "value": 50},
+        {"name": "E", "value": 80},
+        {"name": "F", "value":130},
+        {"name": "G", "value":210}
+    ];
+    var width = 1000; // SVG 領域の横幅
+    var height = 1000; // SVG 領域の縦幅
+
+    var svg = d3.select("#canvas-1")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+
+    svg.append("ul")
+    .selectAll("li").data(testdata).enter()
+    .append("li").text(
+        function(d) {
+            return d["name"] + ": " + d["value"];
+        }
+    );
+</script>
+</body>
+
+</head>
+</html>

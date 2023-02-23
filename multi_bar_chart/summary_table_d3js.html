@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>D3 Pie Chart</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+
+<body>
+<h1>サマリ表（試作）</h1>
+<div id="canvas-1"></div>
+<script>
+
+// データ
+var dataset = [
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-17","obs_true": "35.2","lower": "35.874540561526686","upper": "36.12164943490801","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-18","obs_true": "","lower": "35.87563887277824","upper": "36.122749988534665","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-19","obs_true": "36.0","lower": "35.876193336718714","upper": "36.123304745613424","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-20","obs_true": "","lower": "35.90584946679032","upper": "36.15296090646654","comment": ""},
+	{"user_id": "36729","feature": "column1","YYYYMMDD": "2022-01-21","obs_true": "37.5","lower": "35.940836593560334","upper": "36.187948036008834","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-17","obs_true": "300.0","lower": "302.58875196813096","upper": "562.1879427668493","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-18","obs_true": "240.0","lower": "243.54187541314178","upper": "526.0924668761775","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-19","obs_true": "350.0","lower": "231.08222787506875","upper": "528.3925828065628","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-20","obs_true": "540.0","lower": "297.26643448261876","upper": "602.9757400308315","comment": ""},
+	{"user_id": "36729","feature": "column2","YYYYMMDD": "2022-01-21","obs_true": "410.0","lower": "291.38160204020176","upper": "601.4416324533574","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-17","obs_true": "39.0","lower": "28.8132182846139","upper": "42.4442202827318","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-18","obs_true": "22.0","lower": "24.62242073412107","upper": "39.22806536069641","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-19","obs_true": "37.0","lower": "26.528149334446482","upper": "41.76467552657549","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-20","obs_true": "33.0","lower": "26.406443125718116","upper": "42.01558428678712","comment": ""},
+	{"user_id": "36729","feature": "column3","YYYYMMDD": "2022-01-21","obs_true": "21.0","lower": "21.402225005560798","upper": "37.21660933929557","comment": ""},
+  //{"user_id": "36729","feature": "column4","YYYYMMDD": "","obs_true": "","lower": "","upper": "","comment": "NA"},
+];
+let featureData = {
+  "feature": ["column1", "column2", "column3"],
+//   "color": {"column1": "#5BFF7F", "column2": "#64F9C1", "column3": "#D6FF58"},
+  "color": {"column1": "#F9C200", "column2": "#F31212", "column3": "#12A0B4"},
+            // https://small-road.com/colorcode-vivid/
+}
+
+processedData = processData(dataset);
+
+// パディング
+const canvas_padding = { top: 12.5, right: 20, bottom: 10, left: 80 };
+const graph_padding = { top: 5, left: 60 };
+const text_padding = { top: 12.5, right: 40 };
+const header_padding = {top: 30};
+
+
+var width = 1000; // SVG 領域の横幅
+var height = 1000; // SVG 領域の縦幅
+
+// 棒グラフの横の基準
+var barAreaWidth = 90;
+var textAreaWidth = 50;
+
+text_interval_x = 150
+text_interval_y = 40
+
+// グラフの描画
+main(processedData, featureData); 
+
+// データの前処理
+function processData(dataset) {
+  let objectData = {
+    "column1": {}, 
+    "column2": {},  
+    "column3": {}, 
+  };
+  for (let i = 0; i < dataset.length; i++) {
+    let key_feat = dataset[i].feature;
+    let key_date = dataset[i].YYYYMMDD
+    let elements = {};
+    elements["obs_true"] = dataset[i].obs_true;
+    elements["lower"] = dataset[i].lower;
+    elements["upper"] = dataset[i].upper;
+
+    objectData[key_feat][key_date] = elements;
+  };
+  return objectData;
+};
+
+function main(data, featureData) {
+  console.log(data);
+
+  // SVGの設定
+  var svg = d3.select("#canvas-1")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  
+  data_d3 = d3.entries(data)
+  console.log(data_d3)
+
+  // 変数
+  featureNames = featureData["feature"]
+  // 日付
+  dates = Object.keys(data["column1"])
+
+  // 変数（行）ヘッダーの表示
+  display_header_row(svg, featureNames)
+
+  // 日付（列）ヘッダーの表示
+  display_header_col(svg, dates)
+
+  // グラフとテキストを描画
+  for (let num=0; num < featureNames.length; num++) {
+
+    featureName = featureNames[num];
+    dataset_d3 = d3.entries(data_d3[num].value)
+    console.log(dataset_d3)
+
+    const row = svg.selectAll("." + featureName)
+    .data(dataset_d3)
+    .enter()
+    .append("g")
+    .attr("class", featureName)
+    .attr('transform', function(d, i) {
+      var x_base_pos = text_interval_x * (i+1); // featureの数だけ描画位置を横にずらす
+      var y_base_pos = text_interval_y * (num+2);
+      return `translate(${x_base_pos}, ${y_base_pos})`
+    })
+
+    row.append("text")
+    .attr("class", "texts")
+    .text(d => d.value.obs_true)    
+
+    drow_row_line(row, 1, "#797979");
+    
+  }         
+};
+
+/** 
+ * 行ヘッダーの描画
+ * @param 
+ */
+function display_header_row(svg, featureNames) {
+  
+  const header_row = svg.selectAll(".header_row")
+  .data(featureNames)
+  .enter()
+  .append("g")
+  .attr("class", "header_row")
+  .attr('transform', function(d, i) {
+    var x_base_pos = 0; 
+    var y_base_pos = (i+2) * text_interval_y;
+    return `translate(${x_base_pos}, ${y_base_pos})`
+  })
+  header_row.append("text")
+  .text(d => d)
+
+  drow_row_line(header_row, 1, "#797979");
+};
+
+/** 
+ * 列ヘッダーの描画
+ * @param 
+ */
+function display_header_col(svg, dates) {
+  
+  const header_col = svg.selectAll(".header_col")
+  .data(dates)
+  .enter()
+  .append("g")
+  .attr("class", "header_col")
+  .attr('transform', function(d, i) {
+    var x_base_pos = (i+1) * text_interval_x; 
+    var y_base_pos = text_interval_y;
+    return `translate(${x_base_pos}, ${y_base_pos})`
+  })
+  header_col.append("text")
+  .text(d => d)
+
+
+
+};
+
+/** 
+ * 行方向の罫線
+ * @param 
+ */
+ function drow_row_line(element, stroke_width, stroke_color) {
+  element.append("line")
+  .attr("class", "line")
+  .attr("x1", 0)
+  .attr("x2", text_interval_x)
+  .attr("y1", 12)
+  .attr("y2", 12)
+  .attr("stroke-width", stroke_width)
+  .attr("stroke", stroke_color)
+ }
+
+</script>
+</body>
+</html>
